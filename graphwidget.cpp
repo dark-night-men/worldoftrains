@@ -2,6 +2,7 @@
 #include <math.h>
 #include <QKeyEvent>
 #include <QTextStream>
+#include <QDebug>
 
 uint qHash(const QPoint& p)
 {
@@ -108,10 +109,33 @@ GraphWidget::GraphWidget(QWidget *parent)
         scene->addItem(t);
         t->setPos(t->place());
     }
+
+    genEdges();
+}
+
+const int GraphWidget::townsNumber = 5;
+//n*(n-1)/2 All possible connection
+void GraphWidget::genEdges()
+{
+    int maxEdges = townsNumber*(townsNumber-1)/2 ;
+    int edgeCount = qrand() % maxEdges;
+    
+    for (int i = 0; i < edgeCount; ++i){
+
+        int t1;
+        int t2;
+        do {
+            t1 = qrand() % townsNumber;
+            t2 = qrand() % townsNumber;
+
+        } while (edges_.contains(t1) and edges_[t1].contains(t2));
+        newEdge(t1,t2);
+    }
 }
 
 void GraphWidget::newEdge(int i, int j)
 {
+    qDebug() << i << " --- " << j ;
     edges_[i].insert(j);
     edges_[j].insert(i);
 }
@@ -119,7 +143,8 @@ void GraphWidget::newEdge(int i, int j)
 
 void GraphWidget::genTowns()
 {
-    const int towns = 5 ;
+    const int towns = townsNumber;
+
     const QStringList names( loadCapitals() );
     for (int i = 0; i < towns; ++i){
         QPoint place;

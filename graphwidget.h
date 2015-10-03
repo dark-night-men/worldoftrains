@@ -48,6 +48,8 @@ public:
     void itemMoved();
     void newEdge(int i, int j);
 
+    static const int townsNumber ;
+
 public slots:
     void shuffle();
     void zoomIn();
@@ -65,6 +67,8 @@ protected:
 
 protected:
     void genTowns();
+    void genEdges();
+
 private:
     int timerId;
     QHash<int,QSet<int> > edges_ ;
