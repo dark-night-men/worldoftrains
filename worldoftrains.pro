@@ -1,4 +1,5 @@
 QT += widgets
+CONFIG += debug
 
 HEADERS += \
         graphwidget.h

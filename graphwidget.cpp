@@ -3,6 +3,7 @@
 #include <QKeyEvent>
 #include <QTextStream>
 #include <QDebug>
+#include <assert.h>
 
 uint qHash(const QPoint& p)
 {
@@ -68,9 +69,10 @@ void Town::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
     //QRectF textRect(sceneRect.left() + 4, sceneRect.top() + 4,
     //                sceneRect.width() - 4, sceneRect.height() - 4);
-    QRectF textRect(4, 4, 100, 24);
+    QRectF textRect(4, 4, 200, 24);
 
-    QString message((name_));
+    QString message(name_ + QString(" >%1,%2< ")
+            .arg(pos().x()).arg(pos().y()));
 
     QFont font = painter->font();
     font.setBold(true);
@@ -252,6 +254,18 @@ void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
     painter->fillRect(rect.intersected(sceneRect), gradient);
     painter->setBrush(Qt::NoBrush);
     painter->drawRect(sceneRect);
+
+    // Grid
+    painter->drawLines(QVector<QLine>() 
+            << QLine(QPoint(0,sceneRect.top()), QPoint(0,sceneRect.bottom()))
+            << QLine(QPoint(sceneRect.top(), 0), QPoint(sceneRect.bottom(), 0)));
+
+    qDebug(QString("sceneRect top %1 bottom %2").arg(sceneRect.top()).arg(sceneRect.bottom()).toLatin1().constData());
+    QVector<QLine> dashes;
+    for ( int y=0; y<=sceneRect.bottom(); y+=100 )
+        dashes << QLine(QPoint(-10,y), QPoint(10,y)) << QLine(QPoint(-10,-y), QPoint(10,-y))
+               << QLine(QPoint(y,-10), QPoint(y,10)) << QLine(QPoint(-y,-10), QPoint(-y,10));
+    painter->drawLines(dashes);
 
     // Text
     QRectF textRect(sceneRect.left() + 4, sceneRect.top() + 4,
