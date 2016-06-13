@@ -66,7 +66,7 @@ protected:
     void scaleView(qreal scaleFactor);
 
 protected:
-    void genTowns();
+    void genTowns(QGraphicsScene * scene);
     void genEdges();
 
 private:

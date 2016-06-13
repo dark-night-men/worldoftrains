@@ -106,11 +106,7 @@ GraphWidget::GraphWidget(QWidget *parent)
     scene->addItem(new Edge(node1, node2));
     node1->setPos(-50, -50);
     */
-    genTowns();
-    foreach(Town *t, towns_){
-        scene->addItem(t);
-        t->setPos(t->place());
-    }
+    genTowns(scene);
 
     genEdges();
 }
@@ -143,26 +139,43 @@ void GraphWidget::newEdge(int i, int j)
 }
 
 
-void GraphWidget::genTowns()
+void GraphWidget::genTowns(QGraphicsScene * scene)
 {
+    QRect sceneRect(scene->sceneRect().toRect());
     const int towns = townsNumber;
 
     const QStringList names( loadCapitals() );
     for (int i = 0; i < towns; ++i){
         QPoint place;
-        do {
-            place = QPoint((qrand() % 5)*50,(qrand() % 5)*50);
-        } while(places_.contains(place));
 
         QString name;
         do {
             name =  names.at(qrand() % names.size());
         } while(names_.contains(name));
 
-        towns_.append(new Town(place, i, name)); 
+        int iter = 0;
+        Town * t = 0;
+        do {
+            qDebug(QString("genTowns town %1 iter %2").arg(i).arg(++iter)
+                    .toLatin1().constData());
+            if (t) {
+                scene->removeItem(t);
+                delete t;
+                //delete t; check valgrind
+            }
+            place = QPoint((qrand() % (sceneRect.width()/10))*10 + sceneRect.left()
+                    ,(qrand() % (sceneRect.height()/10)*10) + sceneRect.top());
+            t = new Town(place, i, name);
+            scene->addItem(t);
+            t->setPos(t->place());
+
+        } while(!t->collidingItems().isEmpty());
+
+        towns_.append(t); 
         places_ << place;
         names_ << name;
     }
+
 }
 
 void GraphWidget::itemMoved()
@@ -260,7 +273,7 @@ void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
             << QLine(QPoint(0,sceneRect.top()), QPoint(0,sceneRect.bottom()))
             << QLine(QPoint(sceneRect.top(), 0), QPoint(sceneRect.bottom(), 0)));
 
-    qDebug(QString("sceneRect top %1 bottom %2").arg(sceneRect.top()).arg(sceneRect.bottom()).toLatin1().constData());
+    //qDebug(QString("sceneRect top %1 bottom %2").arg(sceneRect.top()).arg(sceneRect.bottom()).toLatin1().constData());
     QVector<QLine> dashes;
     for ( int y=0; y<=sceneRect.bottom(); y+=100 )
         dashes << QLine(QPoint(-10,y), QPoint(10,y)) << QLine(QPoint(-10,-y), QPoint(10,-y))
