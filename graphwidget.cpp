@@ -21,6 +21,70 @@ QStringList loadCapitals()
     return in.readAll().split("\n");
 }
 
+Continent::Continent()
+    :rect_(0,0,40,60)
+{
+}
+
+bool Continent::advance()
+{
+    return true;
+}
+
+QRectF Continent::boundingRect() const
+{
+    qreal adjust = 2;
+    return QRectF( -10 - adjust, -10 - adjust, 23 + adjust, 23 + adjust);
+}
+
+QPainterPath Continent::shape() const
+{
+    QPainterPath path;
+    path.addEllipse(-10, -10, 20, 20);
+    return path;
+}
+
+void Continent::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
+{
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(Qt::darkGray);
+    //painter->drawEllipse(-7, -7, 20, 20);
+    painter->drawRect(rect_);
+
+    QRadialGradient gradient(-3, -3, 10);
+    if (option->state & QStyle::State_Sunken) {
+        gradient.setCenter(3, 3);
+        gradient.setFocalPoint(3, 3);
+        gradient.setColorAt(1, QColor(Qt::red).light(120));
+        gradient.setColorAt(0, QColor(Qt::darkRed).light(120));
+    } else {
+        gradient.setColorAt(0, Qt::red);
+        gradient.setColorAt(1, Qt::darkRed);
+    }
+    painter->setBrush(gradient);
+
+    //painter->setPen(QPen(Qt::black, 0));
+    painter->setPen(QPen(Qt::darkBlue, 0));
+    //painter->drawEllipse(-10, -10, 20, 20);
+    painter->drawRect(rect_.adjusted(+1,+1,+1,+1));
+
+    //QRectF textRect(sceneRect.left() + 4, sceneRect.top() + 4,
+    //                sceneRect.width() - 4, sceneRect.height() - 4);
+    QRectF textRect(4, 4, 200, 24);
+
+    //QString message(name_ + QString(" >%1,%2< ")
+    //        .arg(pos().x()).arg(pos().y()));
+
+    QFont font = painter->font();
+    font.setBold(true);
+    font.setPointSize(11);
+    painter->setFont(font);
+    painter->setPen(Qt::lightGray);
+    //painter->drawText(textRect.translated(2, 2), message);
+    painter->setPen(Qt::black);
+    //painter->drawText(textRect, message);
+
+}
 
 bool Town::advance()
 {
@@ -175,6 +239,10 @@ void GraphWidget::genTowns(QGraphicsScene * scene)
         places_ << place;
         names_ << name;
     }
+
+    Continent * cont = new Continent;
+    scene->addItem(cont);
+    cont->setPos(QPoint(3,4));
 
 }
 

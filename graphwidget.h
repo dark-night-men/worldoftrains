@@ -10,6 +10,20 @@
 #include <QStyleOptionGraphicsItem>
 
 uint qHash(const QPoint& p);
+class Continent : public QGraphicsItem
+{
+public:
+    Continent();
+    bool advance();
+
+    QRectF boundingRect() const;
+    QPainterPath shape() const;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+private:
+    QRect rect_;
+};
+
 class Town : public QGraphicsItem
 {
 public:
