@@ -53,11 +53,13 @@ private:
     QString name_;
 };
 
+class Grid;
 class GraphWidget : public QGraphicsView
 {
     Q_OBJECT
 public:
     GraphWidget(QWidget *parent = 0);
+    virtual ~GraphWidget();
 
     void itemMoved();
     void newEdge(int i, int j);
@@ -89,6 +91,24 @@ private:
     QVector<Town*> towns_;    
     QSet<QPoint> places_;
     QSet<QString> names_;
+    Grid * m_grid;
+};
+
+class Grid
+{
+public:
+    Grid(QGraphicsScene * scene);
+    
+    void drawGrid(QPainter *painter, const QRectF &rect);
+
+private:
+    int m_xmax;
+    int m_ymax;
+    QGraphicsScene * m_scene;
+
+    int m_xScale;
+    int m_yScale;
+
 };
 
 #endif // GRAPHWIDGET_H

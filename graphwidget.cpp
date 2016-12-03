@@ -153,6 +153,8 @@ GraphWidget::GraphWidget(QWidget *parent)
     : QGraphicsView(parent), timerId(0)
 {
     QGraphicsScene *scene = new QGraphicsScene(this);
+    m_grid = new Grid(scene);
+
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
     scene->setSceneRect(-200, -200, 400, 400);
     setScene(scene);
@@ -170,9 +172,14 @@ GraphWidget::GraphWidget(QWidget *parent)
     scene->addItem(new Edge(node1, node2));
     node1->setPos(-50, -50);
     */
-    genTowns(scene);
+    //genTowns(scene);
 
-    genEdges();
+    //genEdges();
+}
+
+GraphWidget::~GraphWidget()
+{
+    delete m_grid;
 }
 
 const int GraphWidget::townsNumber = 5;
@@ -317,7 +324,7 @@ void GraphWidget::wheelEvent(QWheelEvent *event)
 
 void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
 {
-    Q_UNUSED(rect);
+    //Q_UNUSED(rect);
 
     // Shadow
     QRectF sceneRect = this->sceneRect();
@@ -336,6 +343,13 @@ void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
     painter->setBrush(Qt::NoBrush);
     painter->drawRect(sceneRect);
 
+    painter->setBrush(QBrush(Qt::red));
+    painter->drawEllipse(QPoint(0,0), 50,50);
+    painter->setBrush(Qt::NoBrush);
+
+    m_grid->drawGrid(painter, rect);
+
+    /*
     // Grid
     painter->drawLines(QVector<QLine>() 
             << QLine(QPoint(0,sceneRect.top()), QPoint(0,sceneRect.bottom()))
@@ -347,6 +361,7 @@ void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
         dashes << QLine(QPoint(-10,y), QPoint(10,y)) << QLine(QPoint(-10,-y), QPoint(10,-y))
                << QLine(QPoint(y,-10), QPoint(y,10)) << QLine(QPoint(-y,-10), QPoint(-y,10));
     painter->drawLines(dashes);
+    */
 
     // Text
     QRectF textRect(sceneRect.left() + 4, sceneRect.top() + 4,
@@ -391,4 +406,43 @@ void GraphWidget::zoomIn()
 void GraphWidget::zoomOut()
 {
     scaleView(1 / qreal(1.2));
+}
+
+//---------------------------------------------------------------------------------
+
+Grid::Grid(QGraphicsScene * scene)
+    : m_xmax(4)
+    ,m_ymax(3)
+    ,m_scene(scene)
+{
+    assert(m_scene);
+    QRectF sceneRect = m_scene->sceneRect();
+
+    //todo
+    //m_xScale = sceneRect
+
+}
+
+void Grid::drawGrid(QPainter *painter, const QRectF &rect)
+{
+    Q_UNUSED( rect );
+
+    QRectF sceneRect = m_scene->sceneRect();
+    
+
+    painter->setPen(Qt::red);
+    // Grid
+    painter->drawLines(QVector<QLine>() 
+            << QLine(QPoint(0,sceneRect.top()), QPoint(0,sceneRect.bottom()))
+            << QLine(QPoint(sceneRect.top(), 0), QPoint(sceneRect.bottom(), 0)));
+
+    painter->setPen(Qt::black);
+    //qDebug(QString("sceneRect top %1 bottom %2").arg(sceneRect.top()).arg(sceneRect.bottom()).toLatin1().constData());
+    QVector<QLine> dashes;
+    for ( int y=0; y<=sceneRect.bottom(); y+=100 )
+        dashes << QLine(QPoint(-10,y), QPoint(10,y)) << QLine(QPoint(-10,-y), QPoint(10,-y))
+               << QLine(QPoint(y,-10), QPoint(y,10)) << QLine(QPoint(-y,-10), QPoint(-y,10));
+    painter->drawLines(dashes);
+
+
 }
